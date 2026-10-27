@@ -10,6 +10,7 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.hmdp.utils.RedisIdWorker;
 import com.hmdp.utils.UserHolder;
 import org.apache.tomcat.util.log.UserDataHelper;
+import org.springframework.aop.framework.AopContext;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -32,33 +33,47 @@ public class VoucherOrderServiceImpl extends ServiceImpl<VoucherOrderMapper, Vou
     @Resource
     private RedisIdWorker redisIdWorker;
     @Override
-    @Transactional
     public Result seckillVoucher(Long voucherId) {
         SeckillVoucher voucher = seckillVoucherService.getById(voucherId);
-        if(voucher.getBeginTime().isAfter(LocalDateTime.now())){
+        if (voucher.getBeginTime().isAfter(LocalDateTime.now())) {
             return Result.fail("秒杀尚未开始！");
         }
-        if(voucher.getEndTime().isBefore(LocalDateTime.now())){
+        if (voucher.getEndTime().isBefore(LocalDateTime.now())) {
             return Result.fail("秒杀已经结束！");
         }
-        if (voucher.getStock()<1) {
+        if (voucher.getStock() < 1) {
             return Result.fail("库存不足！");
+        }
+        Long userId = UserHolder.getUser().getId();
+        synchronized (userId.toString().intern()) {
+            IVoucherOrderService proxy = (IVoucherOrderService) AopContext.currentProxy();
+            return proxy.createVoucherOrder(voucherId);
+        }
+    }
+    @Transactional
+    public  Result createVoucherOrder(Long voucherId) {
+        Long userId = UserHolder.getUser().getId();
+        query().eq("user_id", userId).eq("voucher_id", voucherId).count();
+        if (count() > 0) {
+            return Result.fail("用户已经购买过该优惠券！");
         }
         boolean success = seckillVoucherService.update()
                 .setSql("stock = stock - 1")
                 .eq("voucher_id", voucherId)
-                .gt("stock",0)
+                .gt("stock", 0)
                 .update();
         if (!success) {
             return Result.fail("库存不足！");
         }
-        VoucherOrder voucherOrder =new VoucherOrder();
+        VoucherOrder voucherOrder = new VoucherOrder();
         Long orderId = redisIdWorker.nextId("order:");
         voucherOrder.setId(orderId);
-        Long userId = UserHolder.getUser().getId();
+
         voucherOrder.setUserId(userId);
         voucherOrder.setVoucherId(voucherId);
         save(voucherOrder);
         return Result.ok(orderId);
-    }
-}
+        }
+       }
+
+
