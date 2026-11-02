@@ -26,4 +26,12 @@ class HmDianPingApplicationTests {
     void testSaveShop2Redis() {
         cacheClient.setWithLogicalExpire(CACHE_SHOP_KEY + 1L, shopService.getById(1L), 10L, TimeUnit.SECONDS);
     }
+
+    /**
+     * 预热附近商户的 GEO 数据：key 为 shop:geo:{类型id}，member 为店铺id
+     */
+    @Test
+    void testInitShopGeo() {
+        shopService.cacheAllShopToGeo();
+    }
 }

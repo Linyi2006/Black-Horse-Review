@@ -17,4 +17,11 @@ public interface IShopService extends IService<Shop> {
     Result queryById(Long id);
 
     Result update(Shop shop);
+
+    Result queryShopByType(Integer typeId, Integer current, Double x, Double y);
+
+    /**
+     * 将数据库中全部商铺坐标预热到 Redis GEO，供附近商户查询
+     */
+    void cacheAllShopToGeo();
 }
