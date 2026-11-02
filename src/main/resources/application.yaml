@@ -3,6 +3,11 @@ server:
 spring:
   application:
     name: hmdp
+  servlet:
+    multipart:
+      # 图片上传大小限制：默认仅 1MB，手机照片会被拒（报“服务器异常”）
+      max-file-size: 8MB
+      max-request-size: 10MB
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
     url: jdbc:mysql://localhost:3306/hmdp?useUnicode=true&characterEncoding=utf-8&serverTimezone=Asia/Shanghai&useSSL=false&allowPublicKeyRetrieval=true

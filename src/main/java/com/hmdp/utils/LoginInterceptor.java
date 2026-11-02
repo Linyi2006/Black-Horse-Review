@@ -15,7 +15,8 @@ public class LoginInterceptor implements HandlerInterceptor {
     public boolean preHandle(HttpServletRequest request,
                              HttpServletResponse response,
                              Object handler) throws Exception {
-        if (UserHolder.getUser() != null){
+        // 未登录才拦截：UserHolder 为空说明没有有效 token
+        if (UserHolder.getUser() == null) {
             response.setStatus(401);
             return false;
         }

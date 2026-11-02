@@ -22,8 +22,18 @@ public class RedisConstants {
     public static final Long LOCK_SHOP_TTL = 10L;
 
     public static final String SECKILL_STOCK_KEY = "seckill:stock:";
+    /**
+     * 博客点赞ZSet，member为用户id，score为点赞时间
+     */
     public static final String BLOG_LIKED_KEY = "blog:liked:";
+    /**
+     * 关注推送（feed）ZSet，member为博客id，score为发布时间
+     */
     public static final String FEED_KEY = "feed:";
+    /**
+     * 用户关注列表Set，member为被关注用户id，用于共同关注求交集
+     */
+    public static final String FOLLOW_KEY = "follow:";
     public static final String SHOP_GEO_KEY = "shop:geo:";
     public static final String USER_SIGN_KEY = "sign:";
 }
